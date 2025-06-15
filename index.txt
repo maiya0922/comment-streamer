@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>comment-streamer</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #fff;
+      font-family: sans-serif;
+    }
+    .comment {
+      position: absolute;
+      display: inline-block;
+      white-space: nowrap;
+      padding: 8px 16px;
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 1.4;
+      border-radius: 12px;
+      color: #000;
+      z-index: 1;
+      animation: float 14s linear forwards;
+    }
+    .new-badge {
+      position: absolute;
+      top: -16px;
+      right: 0;
+      background: red;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 20;
+      box-shadow: 0 0 6px rgba(0,0,0,0.6);
+    }
+    @keyframes float {
+      from { left: 100vw; }
+      to { left: -100vw; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+let comments = [];
+const usedLanes = new Set();
+const maxLanes = 7;
+const laneHeight = window.innerHeight / (maxLanes + 1);
+const recentTexts = [];
+
+function getColor(service) {
+  switch (service) {
+    case "クラウド": return "#c8facc";
+    case "VPS": return "#E6007E";
+    case "レンタルサーバ": return "#fff7a3";
+    case "高火力": return "#ffaaaa";
+    default: return "#eee";
+  }
+}
+
+function getAvailableLane() {
+  let lane;
+  let tries = 0;
+  do {
+    lane = Math.floor(Math.random() * maxLanes);
+    tries++;
+  } while (usedLanes.has(lane) && tries < 10);
+  usedLanes.add(lane);
+  setTimeout(() => usedLanes.delete(lane), 14000);
+  return lane;
+}
+
+function showComment(data) {
+  if (!data || !data.text || data.text.trim() === "") return;
+  if (recentTexts.includes(data.text)) return;
+  recentTexts.push(data.text);
+  if (recentTexts.length > 20) recentTexts.shift();
+
+  const comment = document.createElement('div');
+  comment.className = 'comment';
+  comment.textContent = `${data.service ? data.service + "：" : ""}${data.text}`;
+  comment.style.backgroundColor = getColor(data.service);
+
+  const lane = getAvailableLane();
+  comment.style.top = `${laneHeight * (lane + 1)}px`;
+
+  if (data.isNew) {
+    const badge = document.createElement('div');
+    badge.className = 'new-badge';
+    badge.textContent = 'NEW! ✨';
+    comment.appendChild(badge);
+    data.isNew = false;
+  }
+
+  document.body.appendChild(comment);
+  setTimeout(() => { comment.remove(); }, 14000);
+}
+
+function fetchComments() {
+  fetch('./comments.json')
+    .then(res => res.json())
+    .then(data => {
+      comments = data;
+      comments.forEach(c => c.isNew = true);
+    })
+    .catch(err => console.error("ローカルJSONの読み込みに失敗しました", err));
+}
+
+fetchComments();
+
+setInterval(() => {
+  const pool = [...comments];
+  for (let i = 0; i < 2; i++) {
+    const index = Math.floor(Math.random() * pool.length);
+    const data = pool[index];
+    if (!data) continue;
+    showComment(data);
+  }
+}, 2000);
+</script>
+
+</body>
+</html>
