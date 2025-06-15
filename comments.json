@@ -1,0 +1,32 @@
+[
+  {
+    "text": "使いやすい！",
+    "service": "クラウド",
+    "isNew": true
+  },
+  {
+    "text": "もう少しUIがほしい",
+    "service": "VPS",
+    "isNew": true
+  },
+  {
+    "text": "爆速で感動しました🔥",
+    "service": "高火力",
+    "isNew": true
+  },
+  {
+    "text": "簡単でよかった！",
+    "service": "レンタルサーバ",
+    "isNew": true
+  },
+  {
+    "text": "構成の柔軟性が高い！",
+    "service": "クラウド",
+    "isNew": true
+  },
+  {
+    "text": "さくらインターネットがんばれー！",
+    "service": "",
+    "isNew": true
+  }
+]
