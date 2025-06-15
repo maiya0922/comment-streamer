@@ -45,7 +45,6 @@
 <body>
 
 <script>
-const sheetUrl = 'https://script.google.com/macros/s/AKfycbwr-jZorvY4zphNz-CIMn_s5fx3znY3UQLbJxUxOXhqTmN-zZg_skv5Wyxq54XHDvoiXw/exec';
 let comments = [];
 const usedLanes = new Set();
 const maxLanes = 7;
@@ -101,26 +100,16 @@ function showComment(data) {
 }
 
 function fetchComments() {
-  fetch(sheetUrl)
+  fetch('./comments.json')
     .then(res => res.json())
     .then(data => {
-      const rows = data.values.slice(1);
-      comments = [];
-      rows.forEach(row => {
-        const service = row[2]?.trim();
-        const good = row[3]?.trim();
-        const improve = row[4]?.trim();
-        const cheer = row[5]?.trim();
-
-        if (good) comments.push({ text: good, service, isNew: true });
-        if (improve) comments.push({ text: improve, service, isNew: true });
-        if (cheer) comments.push({ text: cheer, service, isNew: true });
-      });
+      comments = data;
+      comments.forEach(c => c.isNew = true);
     })
-    .catch(err => console.error("データ取得失敗", err));
+    .catch(err => console.error("ローカルJSONの読み込みに失敗しました", err));
 }
 
-setInterval(fetchComments, 10000);
+fetchComments();
 
 setInterval(() => {
   const pool = [...comments];
